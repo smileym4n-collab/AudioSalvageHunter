@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en" data-theme="light" data-light-contrast="plus">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Audio Salvage Hunter{% endblock %}</title>
+  <meta name="csrf-token" content="{{ csrf_token }}">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="/static/app.css" rel="stylesheet">
+</head>
+{% set is_login_page = request.url.path == "/login" %}
+<body class="{% if is_login_page %}auth-page-body{% else %}app-shell-body{% endif %}">
+{% if not is_login_page %}
+<nav class="app-navbar shadow-sm">
+  <div class="container">
+    <div class="app-navbar-inner">
+      <a class="navbar-brand app-navbar-brand" href="/" aria-label="Audio Salvage Hunter">
+        <span class="app-navbar-brand-frame app-navbar-logo-frame">
+          <img class="app-navbar-logo" src="/static/site-logo.png" alt="Audio Salvage Hunter">
+        </span>
+        <span class="app-navbar-title-wrap">
+          <span class="app-navbar-brand-text">Salvage Hunter</span>
+          <span class="app-navbar-brand-tagline">eBay UK donor finder</span>
+        </span>
+      </a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="primary-nav" aria-label="Toggle navigation" data-nav-toggle>
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      <div class="app-nav-links" id="primary-nav" data-nav-panel>
+        {% set path = request.url.path %}
+        <a class="nav-link nav-link-pill {% if path == '/' %}is-active{% endif %}" href="/">Dashboard</a>
+        <a class="nav-link nav-link-pill {% if path.startswith('/listings') %}is-active{% endif %}" href="/listings">Listings</a>
+        <a class="nav-link nav-link-pill {% if path.startswith('/scan') %}is-active{% endif %}" href="/scan">Scan</a>
+        <a class="nav-link nav-link-pill {% if path.startswith('/donors') %}is-active{% endif %}" href="/donors">Donors</a>
+        <a class="nav-link nav-link-pill {% if path.startswith('/searches') %}is-active{% endif %}" href="/searches">Searches</a>
+        <a class="nav-link nav-link-pill {% if path.startswith('/settings') %}is-active{% endif %}" href="/settings">Settings</a>
+        <a class="nav-link nav-link-pill {% if path.startswith('/logs') %}is-active{% endif %}" href="/logs">Logs</a>
+        <a class="nav-link nav-link-pill {% if path.startswith('/docs') %}is-active{% endif %}" href="/docs">API Docs</a>
+        {% if auth_enabled %}
+        <form method="post" action="/logout" class="nav-logout-form">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+          <button class="nav-link-pill nav-logout-button" type="submit">Logout</button>
+        </form>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</nav>
+{% endif %}
+
+<main class="{% if is_login_page %}app-main app-main-auth{% else %}container py-4 app-main{% endif %}">
+  {% block content %}{% endblock %}
+</main>
+
+{% if not is_login_page %}
+<footer class="app-site-footer">
+  <div class="app-site-footer-inner">Tom Watson Audio - 2026 - Audio Salvage Hunter</div>
+</footer>
+{% endif %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  (function () {
+    const csrfTokenElement = document.querySelector('meta[name="csrf-token"]');
+    const csrfToken = csrfTokenElement ? csrfTokenElement.getAttribute("content") : "";
+    const toggle = document.querySelector("[data-nav-toggle]");
+    const panel = document.querySelector("[data-nav-panel]");
+
+    function isUnsafeMethod(method) {
+      return ["POST", "PUT", "PATCH", "DELETE"].includes((method || "GET").toUpperCase());
+    }
+
+    if (csrfToken) {
+      for (const form of document.querySelectorAll("form")) {
+        const method = (form.getAttribute("method") || "GET").toUpperCase();
+        if (!isUnsafeMethod(method) || form.querySelector('input[name="csrf_token"]')) {
+          continue;
+        }
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = "csrf_token";
+        input.value = csrfToken;
+        form.prepend(input);
+      }
+    }
+
+    if (toggle && panel) {
+      toggle.addEventListener("click", function () {
+        const isOpen = panel.classList.toggle("is-open");
+        toggle.setAttribute("aria-expanded", isOpen ? "true" : "false");
+      });
+    }
+  })();
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

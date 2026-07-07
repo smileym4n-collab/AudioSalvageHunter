@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-intro">
+  <div>
+    <h1>Scan</h1>
+    <p>Run live Browse API scans or load mock data for demonstration and testing.</p>
+  </div>
+</div>
+{% if scan_status.running %}<div class="alert alert-info">A scan is currently running.</div>{% endif %}
+<div class="card mb-4"><div class="card-body">
+  <form method="post" class="row g-3">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <div class="col-md-2"><label class="form-label">Mode</label><select class="form-select" name="mode"><option value="live">Live eBay</option><option value="mock">Mock data</option></select></div>
+    <div class="col-md-3"><label class="form-label">Query group</label><select class="form-select" name="query_group"><option value="">All enabled groups</option>{% for group in groups %}<option value="{{ group }}">{{ group }}</option>{% endfor %}</select></div>
+    <div class="col-md-4"><label class="form-label">Custom search phrase</label><input class="form-control" name="custom_query" placeholder="Optional"></div>
+    <div class="col-md-2 d-flex align-items-end"><div class="form-check"><input class="form-check-input" type="checkbox" name="notifications_enabled" value="on" id="notify"><label class="form-check-label" for="notify">Notify</label></div></div>
+    <div class="col-md-1 d-flex align-items-end"><button class="btn btn-primary w-100" {% if scan_status.running %}disabled{% endif %}>Start</button></div>
+  </form>
+</div></div>
+<h2 class="h5">Recent scans</h2>
+<div class="table-responsive"><table class="table table-sm table-hover"><tr><th>ID</th><th>Mode</th><th>Status</th><th>Started</th><th>Finished</th><th>Found</th><th>New</th><th>Drops</th><th>Message</th></tr>{% for scan in scans %}<tr><td>{{ scan.id }}</td><td>{{ scan.mode }}</td><td>{{ scan.status }}</td><td>{{ fmt_dt(scan.started_at) }}</td><td>{{ fmt_dt(scan.finished_at) }}</td><td>{{ scan.listings_found }}</td><td>{{ scan.new_listings }}</td><td>{{ scan.price_drops }}</td><td>{{ scan.message }}</td></tr>{% endfor %}</table></div>
+{% endblock %}

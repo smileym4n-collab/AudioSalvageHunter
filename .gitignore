@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+audio_salvage_hunter.sqlite3
+*.log
+reports/
+data/
+logs/
+exports/
+config/
+.env

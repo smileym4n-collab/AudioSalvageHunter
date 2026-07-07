@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-intro">
+  <div>
+    <h1>Donor Database</h1>
+    <p>Maintain model, component, confidence, and salvage notes used by scoring.</p>
+  </div>
+  <a class="btn btn-outline-secondary" href="/donors/export">Export CSV</a>
+</div>
+<form class="row g-2 mb-3 card card-body" method="get"><div class="col-md-4"><input class="form-control" name="q" placeholder="Search donors"></div><div class="col-md-2"><button class="btn btn-primary">Search</button></div></form>
+<div class="card mb-4"><div class="card-body">
+  <h2 class="h5">Create or edit donor</h2>
+  <form method="post" class="row g-2">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}"><input type="hidden" name="id" id="donor-id">
+    {% for field in ["manufacturer","model","aliases","category","likely_valuable_components","component_type","ideal_fault_types","risky_fault_types","salvage_difficulty","package_or_removal_notes","source_or_verification_note","general_comments"] %}
+    <div class="col-md-4"><label class="form-label">{{ field }}</label><input class="form-control" name="{{ field }}" id="donor-{{ field }}" {% if field in ["manufacturer","model","category"] %}required{% endif %}></div>
+    {% endfor %}
+    <div class="col-md-2"><label class="form-label">confidence</label><select class="form-select" name="confidence_level"><option>confirmed</option><option>probable</option><option selected>uncertain</option></select></div>
+    <div class="col-md-2"><label class="form-label">score</label><input class="form-control" type="number" min="0" max="100" name="desirability_score" value="50"></div>
+    <div class="col-md-2"><label class="form-label">max GBP</label><input class="form-control" type="number" step="0.01" min="0" name="maximum_worthwhile_delivered_price_gbp" value="0"></div>
+    <div class="col-md-2 d-flex align-items-end"><button class="btn btn-success w-100">Save</button></div>
+  </form>
+</div></div>
+<div class="card mb-4"><div class="card-body"><form method="post" action="/donors/import" enctype="multipart/form-data"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><label class="form-label">Import CSV</label><input class="form-control mb-2" type="file" name="file" accept=".csv" required><button class="btn btn-outline-primary">Import</button></form></div></div>
+<div class="table-responsive"><table class="table table-sm table-hover"><tr><th>Manufacturer</th><th>Model</th><th>Category</th><th>Components</th><th>Type</th><th>Confidence</th><th>Max</th><th></th></tr>{% for donor in donors %}<tr><td>{{ donor.manufacturer }}</td><td>{{ donor.model }}</td><td>{{ donor.category }}</td><td class="wrap">{{ donor.likely_valuable_components }}</td><td>{{ donor.component_type }}</td><td>{{ donor.confidence_level }}</td><td>£{{ donor.maximum_worthwhile_delivered_price_gbp }}</td><td><form method="post" action="/donors/{{ donor.id }}/delete" onsubmit="return confirm('Delete this donor?')"><input type="hidden" name="csrf_token" value="{{ csrf_token }}"><button class="btn btn-sm btn-outline-danger">Delete</button></form></td></tr>{% endfor %}</table></div>
+{% endblock %}

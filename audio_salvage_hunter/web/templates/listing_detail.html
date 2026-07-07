@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-intro">
+  <div>
+    <h1>Listing Detail</h1>
+    <p>Score evidence, donor match, price history, and raw Browse API metadata.</p>
+  </div>
+  <a href="/listings" class="btn btn-outline-secondary">Back</a>
+</div>
+<div class="row g-4">
+  <div class="col-lg-4">{% if listing.image_url %}<img class="img-fluid bg-white rounded border shadow-sm" loading="lazy" src="{{ listing.image_url }}" alt="">{% endif %}</div>
+  <div class="col-lg-8">
+    <h1 class="h3">{{ listing.title }}</h1>
+    <div class="mb-2">{% include "_listing_badges.html" %}</div>
+    <p><a class="btn btn-primary" href="{{ listing.item_url }}" target="_blank" rel="noopener">Open original eBay listing</a></p>
+    <dl class="row">
+      <dt class="col-sm-3">Score</dt><dd class="col-sm-9">{{ listing.score }} raw {{ listing.raw_score }}</dd>
+      <dt class="col-sm-3">Price</dt><dd class="col-sm-9">£{{ listing.price if listing.price is not none else "unknown" }} + postage {{ listing.postage if listing.postage is not none else "unknown" }} = {{ "£%.2f"|format(listing.total_price) if listing.total_price is not none else "unknown" }}</dd>
+      <dt class="col-sm-3">Matched donor</dt><dd class="col-sm-9">{{ listing.matched_donor or "none" }} via {{ listing.matched_name or "n/a" }} · {{ listing.matched_confidence or "n/a" }}</dd>
+      <dt class="col-sm-3">Components</dt><dd class="col-sm-9">{{ listing.possible_components or "none" }}</dd>
+      <dt class="col-sm-3">Positive phrases</dt><dd class="col-sm-9">{{ listing.positive_indicators or "none" }}</dd>
+      <dt class="col-sm-3">Risk phrases</dt><dd class="col-sm-9">{{ listing.risk_indicators or "none" }}</dd>
+      <dt class="col-sm-3">Seen</dt><dd class="col-sm-9">{{ fmt_dt(listing.first_seen_at) }} to {{ fmt_dt(listing.last_seen_at) }}</dd>
+    </dl>
+  </div>
+</div>
+<div class="row g-3 mt-2">
+  <div class="col-lg-6"><div class="card"><div class="card-body"><h2 class="h5">Score breakdown</h2><ul>{% for reason in listing.score_reasons.split('\n') %}<li>{{ reason }}</li>{% endfor %}</ul></div></div></div>
+  <div class="col-lg-6"><div class="card"><div class="card-body"><h2 class="h5">Donor database entry</h2>{% if donor %}<p>{{ donor.manufacturer }} {{ donor.model }} · {{ donor.category }} · {{ donor.confidence_level }}</p><p>{{ donor.likely_valuable_components }}</p><p>{{ donor.source_or_verification_note }}</p>{% else %}<p class="text-muted">No matched donor entry.</p>{% endif %}</div></div></div>
+</div>
+<div class="card mt-3"><div class="card-body"><h2 class="h5">Price history</h2><table class="table table-sm"><tr><th>Seen</th><th>Price</th><th>Postage</th><th>Total</th></tr>{% for row in history %}<tr><td>{{ fmt_dt(row.seen_at) }}</td><td>{{ row.price }}</td><td>{{ row.postage }}</td><td>{{ row.total_price }}</td></tr>{% endfor %}</table></div></div>
+<details class="mt-3"><summary>Raw API fields</summary><pre class="bg-dark text-light p-3 rounded small wrap">{{ listing.raw_json }}</pre></details>
+{% endblock %}

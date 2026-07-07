@@ -1,0 +1,7 @@
+{% if listing.score >= 85 %}<span class="badge text-bg-success">excellent candidate</span>
+{% elif listing.score >= settings.minimum_alert_score|int %}<span class="badge text-bg-primary">worth reviewing</span>
+{% elif listing.matched_confidence == "uncertain" %}<span class="badge text-bg-secondary">uncertain</span>
+{% endif %}
+{% if listing.risk_indicators %}<span class="badge text-bg-warning">risky</span>{% endif %}
+{% if listing.last_price_reduction %}<span class="badge text-bg-success">price reduced</span>{% endif %}
+{% if listing.collection_only %}<span class="badge text-bg-dark">collection only</span>{% endif %}

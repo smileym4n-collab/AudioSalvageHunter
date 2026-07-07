@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "audio-salvage-hunter"
+version = "0.1.0"
+description = "Find promising used, faulty and spares-or-repair audio equipment on eBay UK."
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "PyYAML>=6.0",
+    "requests>=2.31",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+]
+
+[project.scripts]
+audio-salvage-hunter = "audio_salvage_hunter.cli:main"
+audio-salvage-hunter-web = "audio_salvage_hunter.web.app:app"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

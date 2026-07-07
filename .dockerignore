@@ -1,0 +1,11 @@
+.git
+.venv
+__pycache__
+*.pyc
+.pytest_cache
+audio_salvage_hunter.sqlite3
+data/*.sqlite3
+logs/*
+reports/*
+exports/*
+.env

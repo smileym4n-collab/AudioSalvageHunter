@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-intro">
+  <div>
+    <h1>Listings</h1>
+    <p>Filter, sort, and inspect current eBay UK salvage candidates.</p>
+  </div>
+</div>
+<form class="card filter-panel mb-3" method="get">
+  <div class="card-body">
+    <div class="section-kicker">Filters</div>
+    <div class="filter-grid filter-grid-primary">
+      <div class="filter-field filter-field-search">
+        <label class="form-label" for="listing-q">Search</label>
+        <input class="form-control" id="listing-q" name="q" placeholder="Title, model, component or seller phrase" value="{{ params.q or '' }}">
+      </div>
+      <div class="filter-field">
+        <label class="form-label" for="listing-min-score">Minimum score</label>
+        <input class="form-control" id="listing-min-score" type="number" name="min_score" value="{{ params.min_score or '' }}">
+      </div>
+      <div class="filter-field">
+        <label class="form-label" for="listing-max-total">Max total</label>
+        <input class="form-control" id="listing-max-total" type="number" step="0.01" name="max_total" value="{{ params.max_total or '' }}">
+      </div>
+      <div class="filter-field">
+        <label class="form-label" for="listing-confidence">Confidence</label>
+        <select class="form-select" id="listing-confidence" name="confidence"><option value="">Any</option>{% for c in ["confirmed","probable","uncertain"] %}<option value="{{ c }}" {% if params.confidence==c %}selected{% endif %}>{{ c }}</option>{% endfor %}</select>
+      </div>
+      <div class="filter-field">
+        <label class="form-label" for="listing-sort">Sort</label>
+        <select class="form-select" id="listing-sort" name="sort">{% for s in ["score","total_price","first_seen","last_seen","price_reduction","end_time"] %}<option value="{{ s }}" {% if params.sort==s %}selected{% endif %}>{{ s }}</option>{% endfor %}</select>
+      </div>
+      <div class="filter-actions">
+        <button class="btn btn-primary">Filter</button>
+        <a class="btn btn-outline-secondary" href="/listings">Reset</a>
+      </div>
+    </div>
+    <div class="filter-grid filter-grid-secondary">
+      <label class="filter-check"><input class="form-check-input" type="checkbox" name="collection_only" value="true" {% if params.collection_only=="true" %}checked{% endif %}> <span>Collection only</span></label>
+      <label class="filter-check"><input class="form-check-input" type="checkbox" name="price_drops" value="true" {% if params.price_drops=="true" %}checked{% endif %}> <span>Price drops</span></label>
+      <input class="form-control" name="component_type" placeholder="Component type" value="{{ params.component_type or '' }}">
+      <input class="form-control" name="manufacturer" placeholder="Manufacturer" value="{{ params.manufacturer or '' }}">
+      <input class="form-control" name="category" placeholder="Category" value="{{ params.category or '' }}">
+      <input class="form-control" name="matched_donor" placeholder="Matched donor" value="{{ params.matched_donor or '' }}">
+    </div>
+  </div>
+</form>
+<div class="text-muted mb-2">{{ total }} listings · page {{ page }} of {{ pages }}</div>
+{% if listings %}
+<div class="row g-3">
+{% for listing in listings %}
+  <div class="col-lg-6">
+    <div class="card listing-card h-100"><div class="card-body d-flex gap-3">
+      <div>{% if listing.image_url %}<img class="thumb" loading="lazy" src="{{ listing.image_url }}" alt="">{% endif %}</div>
+      <div class="flex-grow-1">
+        <div class="d-flex justify-content-between gap-2"><a class="fw-semibold wrap" href="/listings/{{ listing.item_id }}">{{ listing.title }}</a><span class="badge text-bg-primary">{{ listing.score }}</span></div>
+        <div class="my-1">{% include "_listing_badges.html" %}</div>
+        <div>£{{ "%.2f"|format(listing.total_price) if listing.total_price is not none else "unknown" }} delivered · {{ listing.condition or "condition unknown" }}</div>
+        <div class="small text-muted">{{ listing.matched_donor or "no donor match" }} · {{ listing.matched_confidence or "n/a" }} · first seen {{ fmt_dt(listing.first_seen_at) }}</div>
+      </div>
+    </div></div>
+  </div>
+{% endfor %}
+</div>
+<nav class="mt-3"><ul class="pagination"><li class="page-item {% if page<=1 %}disabled{% endif %}"><a class="page-link" href="?page={{ page-1 }}">Previous</a></li><li class="page-item {% if page>=pages %}disabled{% endif %}"><a class="page-link" href="?page={{ page+1 }}">Next</a></li></ul></nav>
+{% else %}<div class="alert alert-info">No listings match those filters.</div>{% endif %}
+{% endblock %}

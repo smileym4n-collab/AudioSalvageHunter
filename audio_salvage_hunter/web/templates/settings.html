@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-intro">
+  <div>
+    <h1>Settings</h1>
+    <p>Manage scan defaults, integrations, scheduling, mock mode, and data cleanup.</p>
+  </div>
+  <a class="btn btn-outline-secondary" href="/">Back</a>
+</div>
+<div class="alert alert-secondary">Secrets are read from environment variables and are never written here. eBay client ID: {{ secret_status("EBAY_CLIENT_ID") }} · eBay client secret: {{ secret_status("EBAY_CLIENT_SECRET") }} · Telegram token: {{ secret_status("TELEGRAM_BOT_TOKEN") }}</div>
+{% if request.query_params.get("saved") %}
+<div class="alert alert-success">Settings saved. Scheduled scanning has been reconfigured.</div>
+{% endif %}
+{% if request.query_params.get("mock_removed") %}
+<div class="alert alert-success">Removed {{ request.query_params.get("listings", "0") }} mock listings, {{ request.query_params.get("history", "0") }} price-history rows and {{ request.query_params.get("scans", "0") }} mock scan runs.</div>
+{% endif %}
+<form method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <div class="row g-4">
+    <div class="col-xl-6">
+      <div class="card h-100">
+        <div class="card-body row g-3">
+          <div class="col-12">
+            <div class="section-kicker">Scheduled scanning</div>
+            <h2 class="h5 mb-2">eBay listing scans</h2>
+            <p class="text-muted mb-0">With no eBay credentials configured, scheduled scans use mock data. After you add your API credentials, turn Mock mode off to schedule live eBay scans.</p>
+          </div>
+          <div class="col-md-6"><label class="form-label">Scan interval minutes</label><input class="form-control" type="number" min="5" max="10080" name="scan_interval_minutes" value="{{ settings.scan_interval_minutes }}" required></div>
+          <div class="col-md-6"><label class="form-label">Maximum results per query</label><input class="form-control" type="number" min="1" max="1000" name="max_results_per_query" value="{{ settings.max_results_per_query }}" required></div>
+          <div class="col-md-6"><label class="filter-check"><input class="form-check-input" type="checkbox" name="scheduler_enabled" value="on" {% if settings.scheduler_enabled=="true" %}checked{% endif %}> <span>Enable scheduled scans</span></label></div>
+          <div class="col-md-6"><label class="filter-check"><input class="form-check-input" type="checkbox" name="mock_mode" value="on" {% if settings.mock_mode=="true" %}checked{% endif %}> <span>Use mock data</span></label></div>
+          <div class="col-12">
+            <div class="schedule-summary">
+              <div class="text-muted small">Current schedule</div>
+              <div>Mode: <span class="badge text-bg-primary">{{ schedule.mode }}</span> · Next run: {{ fmt_dt(schedule.next_run_time) if schedule.next_run_time else "Not scheduled" }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-6">
+      <div class="card h-100">
+        <div class="card-body row g-3">
+          <div class="col-12">
+            <div class="section-kicker">Scoring and alerts</div>
+            <h2 class="h5 mb-0">Candidate thresholds</h2>
+          </div>
+          <div class="col-md-6"><label class="form-label">Minimum alert score</label><input class="form-control" type="number" min="0" max="100" name="minimum_alert_score" value="{{ settings.minimum_alert_score }}" required></div>
+          <div class="col-md-6"><label class="form-label">Collection-only penalty</label><input class="form-control" type="number" min="0" max="100" name="collection_only_penalty" value="{{ settings.collection_only_penalty }}" required></div>
+          <div class="col-md-6"><label class="form-label">Price-drop threshold GBP</label><input class="form-control" type="number" step="0.01" min="0" name="meaningful_price_reduction_gbp" value="{{ settings.meaningful_price_reduction_gbp }}" required></div>
+          <div class="col-md-6"><label class="filter-check"><input class="form-check-input" type="checkbox" name="telegram_enabled" value="on" {% if settings.telegram_enabled=="true" %}checked{% endif %}> <span>Telegram enabled</span></label></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-6">
+      <div class="card h-100">
+        <div class="card-body row g-3">
+          <div class="col-12">
+            <div class="section-kicker">API and display</div>
+            <h2 class="h5 mb-0">Runtime defaults</h2>
+          </div>
+          <div class="col-md-6"><label class="form-label">eBay marketplace</label><input class="form-control" name="marketplace_id" value="{{ settings.marketplace_id }}" required></div>
+          <div class="col-md-6"><label class="form-label">Local timezone</label><input class="form-control" name="local_timezone" value="{{ settings.local_timezone }}" required></div>
+          <div class="col-md-6"><label class="form-label">Log level</label><input class="form-control" name="log_level" value="{{ settings.log_level }}" required></div>
+        </div>
+      </div>
+    </div>
+    <div class="col-xl-6">
+      <div class="card border-danger h-100">
+        <div class="card-body">
+          <div class="section-kicker">Settings</div>
+          <h2 class="h5 text-danger">Danger zone</h2>
+          <p class="text-muted mb-3">Remove demo listings created by mock-data scans. Live eBay listings, donor entries, search terms and settings are left alone.</p>
+          <button class="btn btn-primary me-2" type="submit">Save settings</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+<div class="card border-danger mt-4">
+  <div class="card-body">
+    <form method="post" action="/settings/remove-mock-data" onsubmit="return confirm('Remove all mock-data listings and mock scan history?')">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <button class="btn btn-outline-danger">Remove mock data</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-intro">
+  <div>
+    <h1>Logs</h1>
+    <p>Review recent application activity without exposing secrets or raw data files.</p>
+  </div>
+</div>
+<form method="get" class="row g-2 mb-3 card card-body"><div class="col-md-2"><select class="form-select" name="level"><option value="">All</option>{% for l in ["INFO","WARNING","ERROR","DEBUG"] %}<option value="{{ l }}" {% if level==l %}selected{% endif %}>{{ l }}</option>{% endfor %}</select></div><div class="col-md-2"><button class="btn btn-primary">Filter</button></div><div class="col-md-2"><a class="btn btn-outline-secondary" href="/logs/download">Download</a></div></form>
+<pre class="bg-dark text-light rounded p-3 small logs-panel">{% for line in lines %}{{ line }}
+{% endfor %}</pre>
+{% endblock %}

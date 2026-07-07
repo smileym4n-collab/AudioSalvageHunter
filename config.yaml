@@ -1,0 +1,114 @@
+settings:
+  marketplace_id: EBAY_GB
+  currency: GBP
+  sqlite_path: audio_salvage_hunter.sqlite3
+  donor_database_path: donor_database.csv
+  reports_dir: reports
+  max_results_per_query: 25
+  request_timeout_seconds: 20
+  rate_limit_delay_seconds: 0.4
+  minimum_alert_score: 65
+  meaningful_price_reduction_gbp: 5.00
+  collection_only_penalty: 12
+  default_max_total_price_gbp: 80
+
+search_groups:
+  exact_equipment_models:
+    - "Creative SB0380"
+    - "Creative Audigy 4 Pro"
+    - "Creative SB1270"
+    - "Creative X-Fi Titanium HD"
+    - "ASUS Xonar D2"
+    - "ASUS Xonar D2X"
+    - "ASUS Xonar Essence ST"
+    - "ASUS Xonar Essence STX"
+  component_names:
+    - "PCM1794"
+    - "CS4398"
+    - "AK4396"
+    - "Burr Brown DAC"
+    - "op amp"
+    - "LM4562"
+    - "JRC2114"
+    - "Nichicon audio"
+  generic_fault_descriptions:
+    - "audio faulty"
+    - "sound card untested"
+    - "spares repair audio"
+    - "no output audio"
+    - "powers on no sound"
+    - "job lot audio"
+  brand_plus_equipment_category:
+    - "Creative sound card faulty"
+    - "Creative sound card spares"
+    - "ASUS Xonar faulty"
+    - "ASUS sound card untested"
+
+scoring_terms:
+  desirable_components:
+    - "PCM1794"
+    - "CS4398"
+    - "AK4396"
+    - "DAC"
+    - "ADC"
+    - "op amp"
+    - "opamp"
+    - "LM4562"
+    - "JRC2114"
+    - "Burr Brown"
+    - "transformer"
+    - "power amp"
+    - "DSP"
+    - "Wolfson"
+    - "ESS Sabre"
+    - "VCA"
+    - "volume control"
+    - "balanced output"
+  powers_on:
+    - "powers on"
+    - "power on"
+    - "turns on"
+    - "lights up"
+  optical_mechanical_fault:
+    - "tray"
+    - "laser"
+    - "optical"
+    - "mechanical"
+    - "knob"
+    - "button"
+    - "display fault"
+    - "cosmetic"
+  internal_photos:
+    - "internal photos"
+    - "inside photos"
+    - "pcb photos"
+    - "circuit board"
+    - "board pictured"
+    - "see inside"
+  water_damage:
+    - "water damage"
+    - "liquid damage"
+    - "spillage"
+    - "corrosion"
+  burnt_smoke_damage:
+    - "burnt"
+    - "burned"
+    - "smoke damage"
+    - "smells of smoke"
+    - "blown"
+  no_audio:
+    - "no audio"
+    - "no sound"
+    - "no output"
+    - "silent"
+  missing_parts:
+    - "missing board"
+    - "missing boards"
+    - "missing pcb"
+    - "parts removed"
+    - "incomplete"
+    - "stripped"
+  collection_only:
+    - "collection only"
+    - "local pickup"
+    - "local pick up"

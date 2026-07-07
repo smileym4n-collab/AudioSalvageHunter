@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-intro">
+  <div>
+    <h1>Dashboard</h1>
+    <p>Review current salvage candidates, scan health, and price-drop activity.</p>
+  </div>
+  <a class="btn btn-primary" href="/scan">Run scan</a>
+</div>
+{% if api_status != "configured" %}<div class="alert alert-warning">Live eBay credentials are not configured. Mock-data scans are still available.</div>{% endif %}
+<div class="row g-3 mb-4">
+  {% for label, value in [("Total listings", total), ("New since last scan", new_since), ("Above alert threshold", above), ("Recent price drops", drops)] %}
+  <div class="col-6 col-lg-3"><div class="card stat-card"><div class="card-body"><div class="text-muted small">{{ label }}</div><div class="display-6">{{ value }}</div></div></div></div>
+  {% endfor %}
+</div>
+<div class="row g-3 mb-4">
+  <div class="col-md-4"><div class="card"><div class="card-body"><div class="text-muted small">Last successful scan</div>{{ fmt_dt(last_scan.finished_at) if last_scan else "Never" }}</div></div></div>
+  <div class="col-md-4"><div class="card"><div class="card-body"><div class="text-muted small">Next scheduled scan</div>{{ fmt_dt(next_scan) if next_scan else "Not scheduled" }}<br><span class="badge text-bg-primary mt-2">{{ schedule.mode }} mode</span></div></div></div>
+  <div class="col-md-4"><div class="card"><div class="card-body"><div class="text-muted small">Status</div>API: {{ api_status }}<br>Database: {{ db_status }}<br>Telegram: {{ telegram_status }}<br>Scheduler: {{ "enabled" if schedule.enabled else "disabled" }}</div></div></div>
+</div>
+<div class="d-flex align-items-center justify-content-between mb-2">
+  <h2 class="h5 mb-0">Most promising listings</h2>
+  <span class="text-muted">{{ listings|length }} visible</span>
+</div>
+{% if listings %}
+<div class="table-responsive">
+  <table class="table table-hover align-middle bg-white">
+    <thead><tr><th></th><th>Listing</th><th>Price</th><th>Score</th><th>Donor</th><th>Components</th><th></th></tr></thead>
+    <tbody>
+    {% for listing in listings %}
+      <tr>
+        <td>{% if listing.image_url %}<img class="thumb" loading="lazy" src="{{ listing.image_url }}" alt="">{% endif %}</td>
+        <td class="wrap"><a href="/listings/{{ listing.item_id }}">{{ listing.title }}</a><div class="mt-1">{% include "_listing_badges.html" %}</div><small class="text-muted">{{ listing.condition }} · {{ listing.location }}</small></td>
+        <td>£{{ "%.2f"|format(listing.total_price) if listing.total_price is not none else "unknown" }}<br><small class="text-muted">postage {{ "£%.2f"|format(listing.postage) if listing.postage is not none else "unknown" }}</small></td>
+        <td><span class="badge rounded-pill text-bg-primary score-pill">{{ listing.score }}</span></td>
+        <td>{{ listing.matched_donor or "none" }}<br><small class="text-muted">{{ listing.matched_confidence or "n/a" }}</small></td>
+        <td class="wrap">{{ listing.possible_components }}</td>
+        <td><a class="btn btn-sm btn-outline-secondary" href="{{ listing.item_url }}" target="_blank" rel="noopener">eBay</a></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="alert alert-info">No listings yet. Run a mock-data scan to populate the dashboard.</div>
+{% endif %}
+{% endblock %}
